@@ -352,7 +352,7 @@ export class SearchResultComponent implements OnChanges, OnInit {
     return result.case_id.startsWith(DRAFT_PREFIX) ? DRAFT_PREFIX : this.hyphenateIfCaseReferenceOrGet(col, result);
   }
 
-  private isSortAscending(column: SearchResultViewColumn): boolean {
+  public isSortAscending(column: SearchResultViewColumn): boolean {
     let currentSortOrder = this.currentSortOrder(column);
 
     return currentSortOrder === SortOrder.UNSORTED || currentSortOrder === SortOrder.DESCENDING;
@@ -375,6 +375,17 @@ export class SearchResultComponent implements OnChanges, OnInit {
       }
     }
     return isAscending ? SortOrder.ASCENDING : isDescending ? SortOrder.DESCENDING : SortOrder.UNSORTED;
+  }
+
+  public getAriaSort(column: SearchResultViewColumn): string {
+    switch (this.currentSortOrder(column)) {
+      case SortOrder.ASCENDING:
+        return 'ascending';
+      case SortOrder.DESCENDING:
+        return 'descending';
+      default:
+        return null;
+    }
   }
 
   getFirstResult(): number {
