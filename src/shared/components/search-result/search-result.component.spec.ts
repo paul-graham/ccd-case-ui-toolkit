@@ -402,6 +402,7 @@ describe('SearchResultComponent', () => {
       let sortLastNameLink = de.query(By.css('div>table>thead>tr th:nth-child(1) table tbody a'));
 
       expect(sortFirstNameLink.nativeElement.textContent).toBe('▼');
+      sortLastNameLink.triggerEventHandler('click', null);
       expect(sortLastNameLink.nativeElement.textContent).toBe('▲');
 
       // Check unordered

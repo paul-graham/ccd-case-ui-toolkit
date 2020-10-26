@@ -241,6 +241,9 @@ export class SearchResultComponent implements OnChanges, OnInit {
       this.resultView.columns.forEach(col => {
         result.columns[col.case_field_id] = this.buildCaseField(col, result);
       });
+      setTimeout(() => {
+        this.resetSortIconsAndAriaSorts();
+      });
     });
 
   }
@@ -293,7 +296,7 @@ export class SearchResultComponent implements OnChanges, OnInit {
     return this.searchResultViewItemComparatorFactory.createSearchResultViewItemComparator(column);
   }
 
-  sort(column: SearchResultViewColumn) {
+  sort(column: SearchResultViewColumn, index: number) {
     if (this.consumerSortingEnabled) {
       if (column.case_field_id !== this.consumerSortParameters.column) {
         this.consumerSortParameters.order = SortOrder.ASCENDING;
@@ -313,9 +316,12 @@ export class SearchResultComponent implements OnChanges, OnInit {
         this.sortParameters = new SortParameters(this.comparator(column), SortOrder.DESCENDING);
       }
     }
+
+    this.resetSortIconsAndAriaSorts();
+    this.setSortIconsAndAriaSorts(column, index);
   }
 
-  sortWidget(column: SearchResultViewColumn) {
+  public getSortIcon(column: SearchResultViewColumn) {
     let condition = false;
     if (this.consumerSortingEnabled) {
       const isColumn = column.case_field_id === this.consumerSortParameters.column;
@@ -326,6 +332,38 @@ export class SearchResultComponent implements OnChanges, OnInit {
     }
 
     return condition ? '&#9660;' : '&#9650;';
+  }
+
+  public getAriaSort(column: SearchResultViewColumn): string {
+    switch (this.currentSortOrder(column)) {
+      case SortOrder.ASCENDING:
+        return 'ascending';
+      case SortOrder.DESCENDING:
+        return 'descending';
+      default:
+        return 'descending';
+    }
+  }
+
+  public setSortIconsAndAriaSorts(column: SearchResultViewColumn, index: number) {
+    const sortIcon = this.getSortIcon(column);
+    const ariaSortState = this.getAriaSort(column);
+    const columnSortTrigger: Element = document.querySelector('#columnSortTrigger_' + index);
+    columnSortTrigger.innerHTML = sortIcon;
+    columnSortTrigger.setAttribute('aria-sort', `Sort by ${column.label} ${ariaSortState}`);
+    columnSortTrigger.closest('th').setAttribute('aria-sort', ariaSortState);
+  }
+
+  public resetSortIconsAndAriaSorts() {
+    const columns = this.resultView.columns;
+    for (let i = 0; i < columns.length; i++) {
+      const columnSortTrigger: Element = document.querySelector('#columnSortTrigger_' + i);
+      if (columnSortTrigger) {
+        columnSortTrigger.innerHTML = '&#9660;';
+        columnSortTrigger.removeAttribute('aria-sort');
+        columnSortTrigger.closest('th').removeAttribute('aria-sort');
+      }
+    }
   }
 
   activityEnabled(): boolean {
@@ -375,17 +413,6 @@ export class SearchResultComponent implements OnChanges, OnInit {
       }
     }
     return isAscending ? SortOrder.ASCENDING : isDescending ? SortOrder.DESCENDING : SortOrder.UNSORTED;
-  }
-
-  public getAriaSort(column: SearchResultViewColumn): string {
-    switch (this.currentSortOrder(column)) {
-      case SortOrder.ASCENDING:
-        return 'ascending';
-      case SortOrder.DESCENDING:
-        return 'descending';
-      default:
-        return null;
-    }
   }
 
   getFirstResult(): number {
