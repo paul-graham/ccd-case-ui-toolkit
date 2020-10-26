@@ -20,15 +20,14 @@
       </div>
     </th>
     <th
-        *ngFor="let col of resultView.columns"
-        [attr.aria-sort]="getAriaSort(col)"
+        *ngFor="let col of resultView.columns; let i = index"
         role="columnheader"
     >
       <table class="search-result-column-header">
         <tr>
-          <div class="search-result-column-label" (click)="sort(col)">{{col.label}}</div>
+          <div class="search-result-column-label" (click)="sort(col, i)">{{col.label}}</div>
           <div *ngIf="comparator(col)" class="search-result-column-sort">
-            <a (click)="sort(col)" class="sort-widget" [innerHTML]="sortWidget(col)" href="javascript:void(0)" attr.aria-label="Sort by {{col.label}} {{ isSortAscending(col)? 'ascending' : 'descending' }}"></a>
+            <a id="columnSortTrigger_{{i}}" (click)="sort(col, i)" class="sort-widget" href="javascript:void(0)"></a>
           </div>
         </tr>
       </table>
